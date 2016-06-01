@@ -1034,6 +1034,7 @@ static id callSelector(NSString *className, NSString *selectorName, JSValue *arg
         return formatOCToJS(result);
     }
     
+    //将参数转化为OC函数需要的正确的参数类型
     for (NSUInteger i = 2; i < numberOfArguments; i++) {
         const char *argumentType = [methodSignature getArgumentTypeAtIndex:i];
         id valObj = argumentsObj[i-2];
@@ -1556,9 +1557,12 @@ static id formatOCToJS(id obj)
     return _wrapObj(obj);
 }
 
+//将JS中的值转到OC中
 static id formatJSToOC(JSValue *jsval)
 {
+    //首先将JS对象转换成OC对象
     id obj = [jsval toObject];
+    
     if (!obj || [obj isKindOfClass:[NSNull class]]) return _nilObj;
     
     if ([obj isKindOfClass:[JPBoxing class]]) return [obj unbox];
@@ -1570,6 +1574,7 @@ static id formatJSToOC(JSValue *jsval)
         return newArr;
     }
     if ([obj isKindOfClass:[NSDictionary class]]) {
+        //当包含__obj键时，说明obj中的存的是OC实例对象
         if (obj[@"__obj"]) {
             id ocObj = [obj objectForKey:@"__obj"];
             if ([ocObj isKindOfClass:[JPBoxing class]]) return [ocObj unbox];
